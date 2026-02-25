@@ -1,1 +1,649 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>INSTITUTIONAL SCANNER KA SCANNER V2 - FEB 2026 READY</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
 
+<style>
+
+body{
+background:linear-gradient(135deg,#0B1220,#0F1B2E);
+color:white;
+font-family:Arial;
+text-align:center;
+padding:20px;
+}
+
+.mainTitle{
+font-family:'Montserrat',sans-serif;
+font-weight:900;
+font-size:48px;
+letter-spacing:3px;
+text-transform:uppercase;
+color:#4DA3FF;
+margin-bottom:10px;
+text-align:center;
+}
+
+.subtitle{
+color:#9CA3AF;
+font-size:14px;
+margin-bottom:20px;
+}
+
+.card{
+background:#111827;
+padding:30px;
+border-radius:16px;
+width:1000px;
+margin:auto;
+box-shadow:0 15px 40px rgba(0,0,0,0.5);
+}
+
+select{
+padding:10px 20px;
+border-radius:8px;
+margin-bottom:20px;
+font-weight:bold;
+background:#1F2937;
+color:white;
+border:1px solid #374151;
+font-size:16px;
+}
+
+.section{
+margin-top:25px;
+padding:20px;
+border-radius:12px;
+background:#1F2937;
+}
+
+.topScanner{
+background:linear-gradient(135deg,#0F172A,#1E3A5F);
+border:2px solid #4DA3FF;
+box-shadow:0 0 30px rgba(77,163,255,0.4);
+position:relative;
+overflow:hidden;
+}
+
+.topScanner::before{
+content:"";
+position:absolute;
+top:0;
+left:-100%;
+width:100%;
+height:100%;
+background:linear-gradient(90deg,transparent,rgba(77,163,255,0.2),transparent);
+animation:shine 3s infinite;
+}
+
+@keyframes shine{
+0%{left:-100%}
+100%{left:100%}
+}
+
+.live{
+color:#4DA3FF;
+font-weight:bold;
+margin-bottom:15px;
+font-size:18px;
+display:flex;
+justify-content:center;
+gap:20px;
+flex-wrap:wrap;
+}
+
+.marketRegime{
+display:inline-block;
+padding:5px 15px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold;
+text-transform:uppercase;
+}
+
+.regime-recovery{background:#059669;color:white;}
+.regime-trending{background:#2563EB;color:white;}
+.regime-chop{background:#D97706;color:white;}
+.regime-crash{background:#DC2626;color:white;}
+
+button{
+margin-top:20px;
+padding:12px 30px;
+border:none;
+border-radius:10px;
+background:#2563EB;
+color:white;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#1D4ED8;
+transform:translateY(-2px);
+}
+
+.small{
+font-size:13px;
+color:#9CA3AF;
+margin-top:10px;
+}
+
+.list{
+text-align:left;
+line-height:2;
+font-weight:bold;
+color:#E5E7EB;
+}
+
+.flex{
+display:flex;
+justify-content:space-between;
+gap:40px;
+}
+
+h3,h4{
+color:#93C5FD;
+}
+
+.stat-box{
+display:inline-block;
+background:#0F172A;
+padding:8px 15px;
+border-radius:6px;
+margin:5px;
+font-size:12px;
+border:1px solid #374151;
+transition:0.3s;
+}
+
+.stat-box:hover{
+border-color:#4DA3FF;
+transform:translateY(-2px);
+}
+
+.winrate-box{
+background:#059669;
+color:white;
+padding:10px 20px;
+border-radius:8px;
+display:inline-block;
+margin-top:10px;
+font-weight:bold;
+}
+
+.recommendation-box{
+background:#0F172A;
+border:1px solid #4DA3FF;
+border-radius:8px;
+padding:15px;
+margin-top:15px;
+text-align:left;
+}
+
+.recommendation-box h4{
+color:#4DA3FF;
+margin-bottom:10px;
+}
+
+.probability-bar{
+width:100%;
+height:8px;
+background:#374151;
+border-radius:4px;
+margin:10px 0;
+overflow:hidden;
+}
+
+.probability-fill{
+height:100%;
+background:linear-gradient(90deg,#2563EB,#4DA3FF);
+border-radius:4px;
+transition:width 1s ease;
+}
+
+</style>
+</head>
+<body>
+
+<div class="card">
+
+<div class="mainTitle">
+INSTITUTIONAL SCANNER KA SCANNER V2
+</div>
+<div class="subtitle">Live Market Analysis Engine | February 2026 Recovery Phase</div>
+
+<select id="tradeMode" onchange="runAI()">
+<option value="intraday">Intraday Trades</option>
+<option value="swing">Swing Trades</option>
+</select>
+
+<div class="live">
+<span>Live BTC: <span id="btcPrice">--</span></span>
+<span>CVD: <span id="cvdDisplay">0</span></span>
+<span>OI: <span id="oiDisplay">--</span></span>
+<span>Trend: <span id="trendDisplay">--</span></span>
+<span id="marketRegime" class="marketRegime">Analyzing...</span>
+</div>
+
+<div class="section topScanner">
+<h3>🎯 Best Scanner For Current Conditions</h3>
+<div id="topScannerName">Calculating...</div>
+<div id="topScannerProb"></div>
+<div class="probability-bar"><div class="probability-fill" id="probBar" style="width:0%"></div></div>
+<div id="recommendationText" class="recommendation-box"></div>
+</div>
+
+<div class="section">
+<h3>📊 All Scanner Rankings</h3>
+<div id="allScanners"></div>
+</div>
+
+<button onclick="manualRefresh()">🔄 Manual Refresh</button>
+
+<div class="small" id="details"></div>
+<div class="winrate-box" id="winrateDisplay">Winrate: 0% (0 trades)</div>
+
+<div class="section">
+<h3>🗂️ Scanner Categories</h3>
+<div class="flex">
+
+<div>
+<h4>Intraday Scanners</h4>
+<div class="list">
+🔥 20-50% AI MODE<br>
+⚡ LUXALGO LIQUIDITY<br>
+🔄 BB RSI STOCHASTIC<br>
+🚀 ULTRA FAST MTF ENGINE<br>
+🔥 RSI 70++ ADVANCE PRO V6<br>
+🌈 LW Indicator PRO V5
+</div>
+</div>
+
+<div>
+<h4>Swing Scanners</h4>
+<div class="list">
+📊 RSI MULTI MA<br>
+📈 CCI TRENDLINE<br>
+🏦 SUPPLY DEMAND<br>
+📉 V & A FORMATION<br>
+⚡ EMA IMPULSE RETEST PRO V3<br>
+☁️ ICHIMOKU CLOUD PRO V10
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// ==========================================
+// TRUE CVD (Using Trade Aggressor)
+// ==========================================
+let cvd = 0;
+let cvdHistory = [];
+let lastPrice = 0;
+let priceHistory = [];
+
+let tradeWS = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@trade");
+
+tradeWS.onmessage = (e) => {
+    let d = JSON.parse(e.data);
+    let price = parseFloat(d.p);
+    let qty = parseFloat(d.q);
+    let isSell = d.m;
+
+    if(isSell) cvd -= qty;
+    else cvd += qty;
+
+    // Keep last 100 CVD readings for trend
+    cvdHistory.push(cvd);
+    if(cvdHistory.length > 100) cvdHistory.shift();
+
+    lastPrice = price;
+    priceHistory.push(price);
+    if(priceHistory.length > 50) priceHistory.shift();
+
+    document.getElementById("btcPrice").innerText = price.toFixed(2);
+    document.getElementById("cvdDisplay").innerText = (cvd/1000).toFixed(2) + "K";
+};
+
+// ==========================================
+// STABLE LIQUIDITY IMBALANCE
+// ==========================================
+let imbalanceHistory = [];
+let bidVol = 0;
+let askVol = 0;
+
+let depthWS = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@depth@100ms");
+
+depthWS.onmessage = (event) => {
+    let data = JSON.parse(event.data);
+    bidVol = data.b.slice(0,20).reduce((a,b) => a + parseFloat(b[1]), 0);
+    askVol = data.a.slice(0,20).reduce((a,b) => a + parseFloat(b[1]), 0);
+};
+
+function liquiditySignal(){
+    if(bidVol === 0 && askVol === 0) return 0;
+    let ratio = bidVol / (askVol || 1);
+    imbalanceHistory.push(ratio);
+    if(imbalanceHistory.length > 10) imbalanceHistory.shift();
+    let avg = imbalanceHistory.reduce((a,b) => a + b, 0) / imbalanceHistory.length;
+    if(avg > 1.3) return 1;
+    if(avg < 0.7) return -1;
+    return 0;
+}
+
+// ==========================================
+// REAL VOLUME PROFILE (POC Detection)
+// ==========================================
+async function volumeProfile(){
+    let res = await axios.get("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=300");
+    let bins = {};
+    let tickSize = 50;
+    res.data.forEach(c => {
+        let price = Math.round(parseFloat(c[4]) / tickSize) * tickSize;
+        let vol = parseFloat(c[5]);
+        bins[price] = (bins[price] || 0) + vol;
+    });
+    let poc = Object.keys(bins).reduce((a,b) => bins[a] > bins[b] ? a : b);
+    let lastPrice = parseFloat(res.data.at(-1)[4]);
+    return {
+        bias: lastPrice > poc ? 1 : -1,
+        poc: poc,
+        valueArea: calculateValueArea(bins)
+    };
+}
+
+function calculateValueArea(bins){
+    let totalVol = Object.values(bins).reduce((a,b) => a + b, 0);
+    let sorted = Object.entries(bins).sort((a,b) => b[1] - a[1]);
+    let cumVol = 0;
+    let valueArea = [];
+    for(let [price, vol] of sorted){
+        cumVol += vol;
+        valueArea.push(price);
+        if(cumVol >= totalVol * 0.7) break;
+    }
+    return valueArea;
+}
+
+// ==========================================
+// TREND FILTER (EMA 200 + Structure)
+// ==========================================
+let trendDirection = 0;
+let ema200 = 0;
+let supportResistance = {};
+
+async function trendFilter(){
+    let res = await axios.get("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=200");
+    let closes = res.data.map(c => parseFloat(c[4]));
+    
+    // EMA 200
+    let multiplier = 2 / (200 + 1);
+    ema200 = closes[0];
+    for(let i = 1; i < closes.length; i++){
+        ema200 = (closes[i] * multiplier) + (ema200 * (1 - multiplier));
+    }
+
+    // Find key S/R levels (last 20 candles)
+    let recent = res.data.slice(-20);
+    let highs = recent.map(c => parseFloat(c[2]));
+    let lows = recent.map(c => parseFloat(c[3]));
+    
+    supportResistance = {
+        resistance: Math.max(...highs),
+        support: Math.min(...lows),
+        ema200: ema200
+    };
+
+    let last = closes.at(-1);
+    trendDirection = last > ema200 ? 1 : -1;
+    
+    document.getElementById("trendDisplay").innerText = trendDirection > 0 ? "BULL" : "BEAR";
+    return trendDirection;
+}
+
+// ==========================================
+// OPEN INTEREST (Futures)
+// ==========================================
+let oiBias = 0;
+let lastOIFetch = 0;
+let cachedOI = 0;
+
+async function fetchOpenInterest(){
+    if(Date.now() - lastOIFetch < 30000){
+        oiBias = cachedOI;
+        return;
+    }
+    try{
+        let res = await axios.get("https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT");
+        oiBias = parseFloat(res.data.openInterest);
+        cachedOI = oiBias;
+        lastOIFetch = Date.now();
+        document.getElementById("oiDisplay").innerText = (oiBias/1000000).toFixed(2) + "M";
+    }catch(e){
+        oiBias = cachedOI || 0;
+    }
+}
+
+// ==========================================
+// MARKET REGIME DETECTOR (Feb 2026 Context)
+// ==========================================
+function detectMarketRegime(fear, volatility, trend, cvdSlope){
+    // Feb 2026: Recovery phase from 50% drawdown
+    if(fear > 70 && trend < 0) return {regime: 'crash', color: 'regime-crash', desc: 'Capitulation Phase'};
+    if(fear > 50 && cvdSlope > 0) return {regime: 'recovery', color: 'regime-recovery', desc: 'Recovery Building'};
+    if(volatility < 0.3 && Math.abs(trend) < 0.5) return {regime: 'chop', color: 'regime-chop', desc: 'Range Bound'};
+    return {regime: 'trending', color: 'regime-trending', desc: 'Trending Market'};
+}
+
+// ==========================================
+// PRE-BREAKOUT DETECTOR
+// ==========================================
+async function breakoutDetector(){
+    let res = await axios.get("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=20");
+    let highs = res.data.map(c => parseFloat(c[2]));
+    let lows = res.data.map(c => parseFloat(c[3]));
+    let range = Math.max(...highs) - Math.min(...lows);
+    let avgRange = range / 20;
+    // Feb 2026: Tighter consolidation threshold due to high volatility
+    return range < 400 ? 1 : 0;
+}
+
+// ==========================================
+// VOLATILITY CALCULATION
+// ==========================================
+function calculateVolatility(){
+    if(priceHistory.length < 20) return 0;
+    let returns = [];
+    for(let i = 1; i < priceHistory.length; i++){
+        returns.push(Math.log(priceHistory[i] / priceHistory[i-1]));
+    }
+    let mean = returns.reduce((a,b) => a + b) / returns.length;
+    let variance = returns.reduce((a,b) => a + Math.pow(b - mean, 2), 0) / returns.length;
+    return Math.sqrt(variance) * Math.sqrt(365); // Annualized
+}
+
+// ==========================================
+// WINRATE TRACKER
+// ==========================================
+let performance = JSON.parse(localStorage.getItem("scannerStats")) || {
+    wins: 0,
+    losses: 0,
+    history: []
+};
+
+function recordResult(win, scannerName){
+    if(win) performance.wins++;
+    else performance.losses++;
+    performance.history.push({
+        date: new Date().toISOString(),
+        result: win ? 'win' : 'loss',
+        scanner: scannerName
+    });
+    if(performance.history.length > 100) performance.history.shift();
+    localStorage.setItem("scannerStats", JSON.stringify(performance));
+    updateWinrateDisplay();
+}
+
+function getWinrate(){
+    let total = performance.wins + performance.losses;
+    if(total === 0) return 0;
+    return ((performance.wins / total) * 100).toFixed(1);
+}
+
+function updateWinrateDisplay(){
+    let total = performance.wins + performance.losses;
+    document.getElementById("winrateDisplay").innerText = "Winrate: " + getWinrate() + "% (" + total + " trades)";
+}
+
+// ==========================================
+// WEIGHTED SCORING ENGINE
+// ==========================================
+function scoreEngine(factors, weights){
+    let score = 50;
+    score += (factors.cvd || 0) * (weights.cvd || 0);
+    score += (factors.liquidity || 0) * (weights.liquidity || 0);
+    score += (factors.volume || 0) * (weights.volume || 0);
+    score += (factors.fear || 0) * (weights.fear || 0);
+    score += (factors.trend || 0) * (weights.trend || 0);
+    score += (factors.oi || 0) * (weights.oi || 0);
+    score += (factors.breakout || 0) * (weights.breakout || 0);
+    score += (factors.regime || 0) * (weights.regime || 0);
+    return Math.max(5, Math.min(95, score));
+}
+
+// ==========================================
+// MAIN AI ENGINE
+// ==========================================
+async function runAI(){
+    let mode = document.getElementById("tradeMode").value;
+    
+    let [volProfile, trend, fearRes] = await Promise.all([
+        volumeProfile(),
+        trendFilter(),
+        axios.get("https://api.alternative.me/fng/?limit=1")
+    ]);
+    
+    await fetchOpenInterest();
+    
+    let liq = liquiditySignal();
+    let breakout = await breakoutDetector();
+    let fear = parseInt(fearRes.data.data[0].value);
+    let volatility = calculateVolatility();
+    
+    // CVD slope (momentum)
+    let cvdSlope = cvdHistory.length > 10 ? 
+        (cvdHistory[cvdHistory.length-1] - cvdHistory[cvdHistory.length-10]) / 10 : 0;
+    
+    // Detect market regime
+    let regime = detectMarketRegime(fear, volatility, trend, cvdSlope);
+    let regimeEl = document.getElementById("marketRegime");
+    regimeEl.className = "marketRegime " + regime.color;
+    regimeEl.innerText = regime.desc;
+
+    let factors = {
+        cvd: cvdSlope > 100 ? 1 : (cvdSlope < -100 ? -1 : 0),
+        liquidity: liq,
+        volume: volProfile.bias,
+        fear: fear > 60 ? 1 : (fear < 35 ? -1 : 0),
+        trend: trend,
+        oi: oiBias > 10000000 ? 1 : -1,
+        breakout: breakout,
+        regime: regime.regime === 'recovery' ? 1 : 0
+    };
+
+    let scanners = {};
+    let recommendation = "";
+
+    if(mode === "intraday"){
+        // Feb 2026: High volatility intraday - favor mean reversion and momentum
+        let intradayWeights = {
+            cvd: 25, liquidity: 20, volume: 15, fear: 10, 
+            trend: 15, oi: 10, breakout: 20, regime: 10
+        };
+        
+        scanners["🔥 20-50% AI MODE"] = scoreEngine(factors, {...intradayWeights, volume: 25, breakout: 25});
+        scanners["⚡ LUXALGO LIQUIDITY"] = scoreEngine({...factors, liquidity: factors.liquidity * 1.5}, {...intradayWeights, liquidity: 30});
+        scanners["🔄 BB RSI STOCHASTIC"] = scoreEngine({...factors, breakout: factors.breakout * 1.3}, {...intradayWeights, breakout: 30, fear: 15});
+        scanners["🚀 ULTRA FAST MTF ENGINE"] = scoreEngine(factors, {...intradayWeights, cvd: 35, trend: 20});
+        scanners["🔥 RSI 70++ ADVANCE PRO V6"] = scoreEngine({...factors, fear: factors.fear * 1.2}, {...intradayWeights, fear: 25, volume: 20});
+        scanners["🌈 LW Indicator PRO V5"] = scoreEngine({...factors, trend: factors.trend * 1.2}, {...intradayWeights, trend: 30, oi: 15});
+
+        recommendation = "⚡ <b>Current Conditions:</b> Feb 2026 recovery phase with elevated volatility. " +
+            "Best for: <b>Mean reversion on rejection at $66.3K resistance</b> or <b>momentum scalps on CVD confirmation</b>. " +
+            "Watch for: <b>Double bottom validation above $63K</b>.";
+
+    } else {
+        // Swing: Trend following and structure
+        let swingWeights = {
+            cvd: 10, liquidity: 15, volume: 25, fear: 15, 
+            trend: 30, oi: 20, breakout: 15, regime: 15
+        };
+        
+        scanners["📊 RSI MULTI MA"] = scoreEngine(factors, swingWeights);
+        scanners["📈 CCI TRENDLINE"] = scoreEngine({...factors, trend: factors.trend * 1.3}, {...swingWeights, trend: 35});
+        scanners["🏦 SUPPLY DEMAND"] = scoreEngine({...factors, volume: factors.volume * 1.2, regime: factors.regime * 1.5}, {...swingWeights, volume: 30, regime: 25});
+        scanners["📉 V & A FORMATION"] = scoreEngine({...factors, breakout: factors.breakout * 1.4}, {...swingWeights, breakout: 30, trend: 25});
+        scanners["⚡ EMA IMPULSE RETEST PRO V3"] = scoreEngine({...factors, trend: factors.trend * 1.4, cvd: factors.cvd * 1.2}, {...swingWeights, trend: 35, cvd: 20});
+        scanners["☁️ ICHIMOKU CLOUD PRO V10"] = scoreEngine(factors, {...swingWeights, trend: 35, volume: 30, oi: 25});
+
+        recommendation = "📈 <b>Current Conditions:</b> Post-crash recovery structure forming. " +
+            "Best for: <b>Swing longs on confirmed support holds</b> or <b>trend shorts on $66.3K+ rejections</b>. " +
+            "March OI shows 3:1 call bias - <b>institutional positioning for Q1 recovery</b>.";
+    }
+
+    let sorted = Object.entries(scanners).sort((a,b) => b[1] - a[1]);
+    let topScanner = sorted[0];
+
+    document.getElementById("topScannerName").innerHTML = "<b style='font-size:28px;color:#4DA3FF;'>" + topScanner[0] + "</b>";
+    document.getElementById("topScannerProb").innerHTML = "Match Probability: <span style='font-size:24px;color:#10B981;'>" + topScanner[1].toFixed(1) + "%</span>";
+    document.getElementById("probBar").style.width = topScanner[1] + "%";
+    document.getElementById("recommendationText").innerHTML = recommendation;
+
+    let html = "";
+    sorted.forEach((s, idx) => {
+        let color = s[1] > 75 ? '#10B981' : (s[1] > 55 ? '#F59E0B' : '#EF4444');
+        let width = s[1] + "%";
+        html += "<div style='padding:10px;margin:8px 0;background:#0F172A;border-radius:8px;border-left:4px solid " + color + ";display:flex;align-items:center;'>";
+        html += "<span style='color:" + color + ";font-weight:bold;flex:1;'>" + (idx+1) + ". " + s[0] + "</span>";
+        html += "<div style='flex:1;background:#374151;height:8px;border-radius:4px;margin:0 15px;'><div style='width:" + width + ";height:100%;background:" + color + ";border-radius:4px;'></div></div>";
+        html += "<span style='font-weight:bold;color:" + color + ";'>" + s[1].toFixed(1) + "%</span>";
+        html += "</div>";
+    });
+    document.getElementById("allScanners").innerHTML = html;
+
+    document.getElementById("details").innerHTML =
+        "<div class='stat-box'>Mode: " + mode + "</div>" +
+        "<div class='stat-box'>Fear: " + fear + "</div>" +
+        "<div class='stat-box'>Vol: " + (volatility * 100).toFixed(1) + "%</div>" +
+        "<div class='stat-box'>CVD Δ: " + (cvdSlope/1000).toFixed(2) + "K</div>" +
+        "<div class='stat-box'>POC: $" + volProfile.poc + "</div>" +
+        "<div class='stat-box'>EMA200: $" + Math.round(ema200) + "</div>" +
+        "<div class='stat-box'>Res: $" + Math.round(supportResistance.resistance) + "</div>" +
+        "<div class='stat-box'>Sup: $" + Math.round(supportResistance.support) + "</div>";
+
+    updateWinrateDisplay();
+}
+
+function manualRefresh(){
+    cvd = 0;
+    cvdHistory = [];
+    imbalanceHistory = [];
+    priceHistory = [];
+    runAI();
+}
+
+// Initialize
+updateWinrateDisplay();
+runAI();
+setInterval(runAI, 15000);
+
+</script>
+</body>
+</html>
